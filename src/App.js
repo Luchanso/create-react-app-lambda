@@ -1,12 +1,13 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import ApolloClient from "apollo-boost";
-import logo from './logo.svg';
-import './App.css';
+import { gql } from "apollo-boost";
+import { ApolloProvider, Query } from "react-apollo";
+import logo from "./logo.svg";
+import "./App.css";
 
 const client = new ApolloClient({
   uri: "/.netlify/functions/graphql"
 });
-
 
 const LambdaDemo = () => (
   <ApolloProvider client={client}>
@@ -17,13 +18,24 @@ const LambdaDemo = () => (
         }
       `}
     >
-      {({ data }) =>
-        <div>A greeting from the server: {data.hello}</div>}
+      {({ data }) => <div>A greeting from the server: {data.hello}</div>}
     </Query>
   </ApolloProvider>
 );
 
 class App extends Component {
+  state = {
+    flag: false
+  };
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.setState({
+        flag: true
+      });
+    }, 1000);
+  }
+
   render() {
     return (
       <div className="App">
@@ -34,7 +46,7 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
-        <LambdaDemo/>
+        {this.state.flag && <LambdaDemo />}
       </div>
     );
   }
