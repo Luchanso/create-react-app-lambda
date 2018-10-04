@@ -1,33 +1,41 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import ApolloClient from "apollo-boost";
+import { gql } from "apollo-boost";
+import { ApolloProvider, Query } from "react-apollo";
+import logo from "./logo.svg";
+import "./App.css";
 
-class LambdaDemo extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {loading: false, msg: null};
-  }
+const client = new ApolloClient({
+  uri: "/.netlify/functions/graphql"
+});
 
-  handleClick = (e) => {
-    e.preventDefault();
-
-    this.setState({loading: true});
-    fetch('/.netlify/functions/hello')
-      .then(response => response.json())
-      .then(json => this.setState({loading: false, msg: json.msg}));
-  }
-
-  render() {
-    const {loading, msg} = this.state;
-
-    return <p>
-      <button onClick={this.handleClick}>{loading ? 'Loading...' : 'Call Lambda'}</button><br/>
-      <span>{msg}</span>
-    </p>
-  }
-}
+const LambdaDemo = () => (
+  <ApolloProvider client={client}>
+    <Query
+      query={gql`
+        {
+          hello
+        }
+      `}
+    >
+      {({ data }) => <div>A greeting from the server: {data.hello}</div>}
+    </Query>
+  </ApolloProvider>
+);
 
 class App extends Component {
+  state = {
+    flag: false
+  };
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.setState({
+        flag: true
+      });
+    }, 1000);
+  }
+
   render() {
     return (
       <div className="App">
@@ -38,7 +46,7 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
-        <LambdaDemo/>
+        {this.state.flag && <LambdaDemo />}
       </div>
     );
   }
